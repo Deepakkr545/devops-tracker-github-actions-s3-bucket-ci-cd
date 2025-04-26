@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pro Stopwatch</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      transition: background 0.5s ease;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      width: 90%;
+      max-width: 520px;
+      text-align: center;
+    }
+
+    .timer {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .buttons, .settings {
+      margin-top: 15px;
+    }
+
+    button, select {
+      background: #fff;
+      color: #185a9d;
+      border: none;
+      padding: 10px 18px;
+      margin: 8px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    button:hover, select:hover {
+      transform: scale(1.05);
+    }
+
+    .laps {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .laps p {
+      background: rgba(255,255,255,0.15);
+      margin: 6px 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .fastest { background-color: rgba(76, 175, 80, 0.3); }
+    .slowest { background-color: rgba(244, 67, 54, 0.3); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="timer" id="display">00:00:00.00</div>
+    
+    <div class="buttons">
+      <button onclick="startTimer()">Start</button>
+      <button onclick="stopTimer()">Stop</button>
+      <button onclick="lapTime()">Lap</button>
+      <button onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div class="settings">
+      <select onchange="changeBackground(this.value)">
+        <option disabled selected>Change Background</option>
+        <option value="ocean">Ocean</option>
+        <option value="sunset">Sunset</option>
+        <option value="neon">Neon</option>
+        <option value="dark">Dark</option>
+      </select>
+      <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+    </div>
+
+    <div class="laps" id="laps"></div>
+  </div>
+
+  <!-- Optional Lap Sound -->
+  <audio id="lapSound" src="https://www.soundjay.com/buttons/sounds/button-29.mp3" preload="auto"></audio>
+
+  <script>
+    let timer;
+    let milliseconds = 0;
+    let running = false;
+    let lapCounter = 1;
+    let lapTimes = [];
+
+    function formatTime(ms) {
+      let totalSeconds = Math.floor(ms / 100);
+      let hrs = Math.floor(totalSeconds / 3600);
+      let mins = Math.floor((totalSeconds % 3600) / 60);
+      let secs = totalSeconds % 60;
+      let msec = ms % 100;
+      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(msec).padStart(2, '0')}`;
+    }
+
+    function updateDisplay() {
+      document.getElementById("display").textContent = formatTime(milliseconds);
+    }
+
+    function startTimer() {
+      if (!running) {
+        running = true;
+        timer = setInterval(() => {
+          milliseconds++;
+          updateDisplay();
+        }, 10);
+      }
+    }
+
+    function stopTimer() {
+      running = false;
+      clearInterval(timer);
+    }
+
+    function resetTimer() {
+      stopTimer();
+      milliseconds = 0;
+      lapCounter = 1;
+      lapTimes = [];
+      updateDisplay();
+      document.getElementById("laps").innerHTML = '';
+    }
+
+    function lapTime() {
+      if (milliseconds > 0) {
+        lapTimes.push(milliseconds);
+        const lapDisplay = document.getElementById("laps");
+        const lap = document.createElement("p");
+        lap.textContent = `Lap ${lapCounter++}: ${formatTime(milliseconds)}`;
+        lapDisplay.prepend(lap);
+
+        document.getElementById("lapSound").play();
+
+        highlightLaps();
+      }
+    }
+
+    function highlightLaps() {
+      const laps = document.querySelectorAll(".laps p");
+      if (lapTimes.length < 2) return;
+
+      let fastest = Math.min(...lapTimes);
+      let slowest = Math.max(...lapTimes);
+
+      laps.forEach((lap, index) => {
+        lap.classList.remove('fastest', 'slowest');
+        const time = lapTimes[lapTimes.length - 1 - index];
+        if (time === fastest) lap.classList.add('fastest');
+        if (time === slowest) lap.classList.add('slowest');
+      });
+    }
+
+    function changeBackground(theme) {
+      let body = document.body;
+      switch (theme) {
+        case 'ocean':
+          body.style.background = "linear-gradient(135deg, #43cea2, #185a9d)";
+          break;
+        case 'sunset':
+          body.style.background = "linear-gradient(135deg, #ff758c, #ff7eb3)";
+          break;
+        case 'neon':
+          body.style.background = "linear-gradient(135deg, #00c6ff, #0072ff)";
+          break;
+        case 'dark':
+          body.style.background = "#1e1e1e";
+          break;
+      }
+    }
+
+    function toggleTheme() {
+      let body = document.body;
+      let container = document.querySelector('.container');
+      if (body.style.color === 'black') {
+        body.style.color = '#fff';
+        container.style.background = 'rgba(255,255,255,0.1)';
+      } else {
+        body.style.color = 'black';
+        container.style.background = 'rgba(255,255,255,0.9)';
+      }
+    }
+  </script>
+</body>
+</html>
