@@ -28,6 +28,4 @@ This project demonstrates a Continuous Integration and Continuous Deployment (CI
    * Syncs files to the S3 bucket using the AWS CLI.
 4. The S3 bucket serves the latest version of the DevOps learning tracker website.
 
----
 
-If you want, I can also help you draft a README file with this description!
