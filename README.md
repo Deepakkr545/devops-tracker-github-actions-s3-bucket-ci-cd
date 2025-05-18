@@ -1,6 +1,3 @@
-Sure! Here's your project description in that style, but adapted for your DevOps Learning Tracker project:
-
----
 
 **DevOps Learning Tracker Static Website CI/CD with GitHub Actions and S3**
 
