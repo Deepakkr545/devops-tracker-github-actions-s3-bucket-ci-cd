@@ -1,214 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Pro Stopwatch Demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevOps Learning Tracker</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    body {
       font-family: 'Segoe UI', sans-serif;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      margin: 0;
+      padding: 1rem;
     }
 
-    body {
-      height: 100vh;
-      background: linear-gradient(135deg, #43cea2, #185a9d);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      transition: background 0.5s ease;
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      color: #3b82f6;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      backdrop-filter: blur(10px);
-      width: 90%;
-      max-width: 520px;
-      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .timer {
-      font-size: 48px;
-      font-weight: bold;
-      margin-bottom: 20px;
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
     }
 
-    .buttons, .settings {
-      margin-top: 15px;
+    .topic {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
     }
 
-    button, select {
-      background: #fff;
-      color: #185a9d;
+    .topic:last-child {
+      border-bottom: none;
+    }
+
+    .topic input[type="checkbox"] {
+      margin-right: 1rem;
+      width: 20px;
+      height: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+    }
+
+    button {
+      background-color: #10b981;
+      color: white;
       border: none;
-      padding: 10px 18px;
-      margin: 8px;
-      border-radius: 25px;
-      font-size: 16px;
-      font-weight: bold;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     }
 
-    button:hover, select:hover {
-      transform: scale(1.05);
+    button:hover {
+      background-color: #059669;
     }
 
-    .laps {
-      margin-top: 20px;
-      max-height: 200px;
-      overflow-y: auto;
-      text-align: left;
+    .reset {
+      background-color: #ef4444;
     }
 
-    .laps p {
-      background: rgba(255,255,255,0.15);
-      margin: 6px 0;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 14px;
+    .reset:hover {
+      background-color: #dc2626;
     }
 
-    .fastest { background-color: rgba(76, 175, 80, 0.3); }
-    .slowest { background-color: rgba(244, 67, 54, 0.3); }
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: #6b7280;
+    }
+
+    .progress-bar-container {
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+      height: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: #3b82f6;
+      width: 0%;
+      text-align: center;
+      color: white;
+      font-size: 0.9rem;
+      transition: width 0.3s;
+    }
   </style>
 </head>
 <body>
+  <header>
+    <h1>📘 DevOps Learning Tracker</h1>
+    <p>Mark off topics as you learn — your progress is saved locally</p>
+  </header>
+
   <div class="container">
-    <div class="timer" id="display">00:00:00.00</div>
-    
+    <input type="text" id="search" placeholder="🔍 Search topics...">
+
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar">0%</div>
+    </div>
+
+    <div id="topicsList"></div>
+
     <div class="buttons">
-      <button onclick="startTimer()">Start Timer </button>
-      <button onclick="stopTimer()">Stop</button>
-      <button onclick="lapTime()">Lap</button>
-      <button onclick="resetTimer()">Reset</button>
+      <button onclick="saveProgress()">💾 Save Progress</button>
+      <button class="reset" onclick="resetProgress()">♻️ Reset Progress</button>
     </div>
-
-    <div class="settings">
-      <select onchange="changeBackground(this.value)">
-        <option disabled selected>Change Background</option>
-        <option value="ocean">Ocean</option>
-        <option value="sunset">Sunset</option>
-        <option value="neon">Neon</option>
-        <option value="dark">Dark</option>
-      </select>
-      <button onclick="toggleTheme()">🌓 Toggle Theme</button>
-    </div>
-
-    <div class="laps" id="laps"></div>
   </div>
 
-  <!-- Optional Lap Sound -->
-  <audio id="lapSound" src="https://www.soundjay.com/buttons/sounds/button-29.mp3" preload="auto"></audio>
+  <footer>
+    Last saved: <span id="lastSaved">Never</span>
+  </footer>
 
   <script>
-    let timer;
-    let milliseconds = 0;
-    let running = false;
-    let lapCounter = 1;
-    let lapTimes = [];
+    const topics = [
+      "Git & GitHub", "Linux Basics", "Linux Permissions", "Linux Shell Scripting", "SSH & SCP",
+      "Terraform", "Terraform Modules", "Terraform State", "AWS EC2", "AWS S3", "AWS IAM", "AWS VPC",
+      "AWS RDS", "AWS CloudFront", "AWS Route 53", "AWS Auto Scaling", "AWS Load Balancer",
+      "GitHub Actions", "CI/CD Pipelines", "Docker Basics", "Docker Compose", "Docker Hub",
+      "Ansible Basics", "Ansible Playbooks", "Ansible Roles", "YAML Syntax", "Monitoring (CloudWatch)",
+      "Secrets Management", "Infrastructure as Code", "Log Management", "Alerting Systems",
+      "DevOps Resume Projects", "Agile & Scrum Basics"
+    ];
 
-    function formatTime(ms) {
-      let totalSeconds = Math.floor(ms / 100);
-      let hrs = Math.floor(totalSeconds / 3600);
-      let mins = Math.floor((totalSeconds % 3600) / 60);
-      let secs = totalSeconds % 60;
-      let msec = ms % 100;
-      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(msec).padStart(2, '0')}`;
-    }
+    function renderTopics(filter = "") {
+      const container = document.getElementById("topicsList");
+      container.innerHTML = "";
+      let completed = 0;
 
-    function updateDisplay() {
-      document.getElementById("display").textContent = formatTime(milliseconds);
-    }
+      topics.forEach((topic, index) => {
+        if (filter && !topic.toLowerCase().includes(filter.toLowerCase())) return;
 
-    function startTimer() {
-      if (!running) {
-        running = true;
-        timer = setInterval(() => {
-          milliseconds++;
-          updateDisplay();
-        }, 10);
-      }
-    }
+        const isChecked = localStorage.getItem(`topic-${index}`) === "true";
+        if (isChecked) completed++;
 
-    function stopTimer() {
-      running = false;
-      clearInterval(timer);
-    }
-
-    function resetTimer() {
-      stopTimer();
-      milliseconds = 0;
-      lapCounter = 1;
-      lapTimes = [];
-      updateDisplay();
-      document.getElementById("laps").innerHTML = '';
-    }
-
-    function lapTime() {
-      if (milliseconds > 0) {
-        lapTimes.push(milliseconds);
-        const lapDisplay = document.getElementById("laps");
-        const lap = document.createElement("p");
-        lap.textContent = `Lap ${lapCounter++}: ${formatTime(milliseconds)}`;
-        lapDisplay.prepend(lap);
-
-        document.getElementById("lapSound").play();
-
-        highlightLaps();
-      }
-    }
-
-    function highlightLaps() {
-      const laps = document.querySelectorAll(".laps p");
-      if (lapTimes.length < 2) return;
-
-      let fastest = Math.min(...lapTimes);
-      let slowest = Math.max(...lapTimes);
-
-      laps.forEach((lap, index) => {
-        lap.classList.remove('fastest', 'slowest');
-        const time = lapTimes[lapTimes.length - 1 - index];
-        if (time === fastest) lap.classList.add('fastest');
-        if (time === slowest) lap.classList.add('slowest');
+        const div = document.createElement("div");
+        div.className = "topic";
+        div.innerHTML = `
+          <input type="checkbox" id="topic-${index}" ${isChecked ? "checked" : ""}>
+          <label for="topic-${index}">${topic}</label>
+        `;
+        container.appendChild(div);
       });
+
+      updateProgress();
     }
 
-    function changeBackground(theme) {
-      let body = document.body;
-      switch (theme) {
-        case 'ocean':
-          body.style.background = "linear-gradient(135deg, #43cea2, #185a9d)";
-          break;
-        case 'sunset':
-          body.style.background = "linear-gradient(135deg, #ff758c, #ff7eb3)";
-          break;
-        case 'neon':
-          body.style.background = "linear-gradient(135deg, #00c6ff, #0072ff)";
-          break;
-        case 'dark':
-          body.style.background = "#1e1e1e";
-          break;
-      }
+    function saveProgress() {
+      topics.forEach((_, index) => {
+        const checked = document.getElementById(`topic-${index}`)?.checked;
+        localStorage.setItem(`topic-${index}`, checked);
+      });
+      const time = new Date().toLocaleString();
+      localStorage.setItem("lastSaved", time);
+      document.getElementById("lastSaved").textContent = time;
+      updateProgress();
     }
 
-    function toggleTheme() {
-      let body = document.body;
-      let container = document.querySelector('.container');
-      if (body.style.color === 'black') {
-        body.style.color = '#fff';
-        container.style.background = 'rgba(255,255,255,0.1)';
-      } else {
-        body.style.color = 'black';
-        container.style.background = 'rgba(255,255,255,0.9)';
-      }
+    function resetProgress() {
+      if (!confirm("Are you sure you want to reset all progress?")) return;
+      topics.forEach((_, index) => {
+        localStorage.removeItem(`topic-${index}`);
+      });
+      localStorage.removeItem("lastSaved");
+      document.getElementById("lastSaved").textContent = "Never";
+      renderTopics();
     }
+
+    function updateProgress() {
+      const total = topics.length;
+      let completed = 0;
+
+      topics.forEach((_, index) => {
+        const checkbox = document.getElementById(`topic-${index}`);
+        if (checkbox?.checked) completed++;
+      });
+
+      const percent = Math.round((completed / total) * 100);
+      const bar = document.getElementById("progressBar");
+      bar.style.width = percent + "%";
+      bar.textContent = percent + "%";
+    }
+
+    document.getElementById("search").addEventListener("input", (e) => {
+      renderTopics(e.target.value);
+    });
+
+    // Load on start
+    window.onload = () => {
+      renderTopics();
+      const saved = localStorage.getItem("lastSaved");
+      if (saved) document.getElementById("lastSaved").textContent = saved;
+    };
   </script>
 </body>
 </html>
